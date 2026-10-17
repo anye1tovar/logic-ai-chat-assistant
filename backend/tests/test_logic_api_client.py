@@ -171,6 +171,15 @@ def test_validates_arguments_and_rejects_invalid_api_payloads():
     assert adapt_room({"name": "Test", "difficulty": "internal-value"}).difficulty is None
 
 
+def test_room_adapter_excludes_inactive_rooms():
+    from app.logic_api.adapter import adapt_rooms
+
+    assert [room.name for room in adapt_rooms([
+        {"name": "Portal", "active": True},
+        {"name": "Historical room", "active": False},
+    ])] == ["Portal"]
+
+
 def test_only_reference_data_is_cached():
     calls = []
 

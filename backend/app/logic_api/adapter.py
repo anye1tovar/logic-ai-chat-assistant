@@ -51,5 +51,7 @@ def adapt_rooms(payload: Any) -> list[Room]:
     for raw in payload:
         if not isinstance(raw, Mapping):
             raise LogicApiProtocolError("The Logic API returned an invalid room record.")
+        if raw.get("active") is False:
+            continue
         rooms.append(adapt_room(raw))
     return rooms

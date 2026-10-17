@@ -11,6 +11,7 @@ LOG_LEVEL=INFO
 OPENAI_API_KEY=
 OPENAI_MODEL=
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_CHAT_MAX_OUTPUT_TOKENS=400
 
 LOGIC_API_BASE_URL=
 LOGIC_API_TIMEOUT_SECONDS=10
@@ -41,6 +42,8 @@ LOGIC_OPERATIONAL_VALUES_VERIFIED=false
 ```
 
 Los valores de operación se cargan desde el entorno. `config/operational-links.example.yaml` solo documenta el mapeo y mantiene vacíos los valores; no se ingresa a RAG ni contiene secretos o enlaces reales. Exponer cada valor únicamente cuando esté configurado y verificado.
+
+El backend expone `POST /api/chat` con un cuerpo `{ "message": "..." }` y responde `{ "answer": "..." }`. El endpoint requiere `OPENAI_API_KEY` (también acepta `LOGIC_OPENAI_API_KEY`) y `OPENAI_MODEL`. Las consultas estructuradas requieren además `LOGIC_API_BASE_URL`. El selector del modelo solo puede escoger una ruta de lectura permitida; el backend valida los argumentos y ejecuta API/RAG. No se crean reservas.
 
 Optional future variable:
 
@@ -81,11 +84,19 @@ npm run dev
 
 ## RAG ingestion
 
-Target command:
-
 ```bash
 python -m app.rag.ingest
 ```
+
+## Chat API
+
+Desde `backend/`, inicia el servidor con `uvicorn app.main:app --reload` y envía un `POST` a `http://127.0.0.1:8000/api/chat`:
+
+```json
+{"message":"¿Qué salas tienen?"}
+```
+
+`OPENAI_MODEL` no tiene un valor predeterminado intencional: configúralo en `.env` para el modelo de chat habilitado en tu cuenta.
 
 ## Evaluation
 

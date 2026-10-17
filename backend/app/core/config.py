@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     openai_model: str | None = None
     openai_embedding_model: str = "text-embedding-3-small"
     openai_timeout_seconds: float = Field(default=30.0, gt=0)
+    openai_chat_max_output_tokens: int = Field(default=400, ge=64, le=2000)
 
     logic_api_base_url: str | None = None
     logic_api_timeout_seconds: float = Field(default=10.0, gt=0)
