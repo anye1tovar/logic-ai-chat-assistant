@@ -1,0 +1,97 @@
+version: 1
+timezone: America/Bogota
+language: es-CO
+
+sources:
+  logic_api:
+    role: authoritative_structured_operational_data
+    base_url_env: LOGIC_API_BASE_URL
+    authentication: none_currently
+    security_note: public_internet_access; CORS_is_not_server_authentication
+    data:
+      - active_rooms
+      - room_descriptions_and_videos
+      - ordinary_room_minimum_and_maximum_capacity
+      - room_minimum_age_without_adult
+      - current_rates
+      - concrete_quotes
+      - general_opening_hours
+      - date_specific_availability
+    vectorize: false
+    cache:
+      allowed_reference_data: [rooms, rates, opening_hours]
+      quote: false
+      availability: false
+      ttl_seconds: ${LOGIC_REFERENCE_CACHE_TTL_SECONDS}
+    failure_behavior: do_not_substitute_rag; explain_unverified_and_offer_human_review
+    documented_read_operations:
+      - method: GET
+        path: /api/rooms
+      - method: GET
+        path: /api/rates
+      - method: GET
+        path: /api/bookings/quote
+        required_query: [date, attendees]
+      - method: GET
+        path: /api/bookings/opening-hours
+      - method: GET
+        path: /api/bookings/availability
+        required_query: [date]
+    forbidden_operations:
+      - POST /api/bookings
+      - GET /api/bookings
+      - GET /api/bookings/:id
+      - GET /api/bookings/consult/:code
+
+  rag:
+    role: validated_contextual_business_policies_and_exceptions
+    vectorize: true
+    implementation: backend/app/rag
+    embedding_model_env: OPENAI_EMBEDDING_MODEL
+    api_key_env_any_of: [OPENAI_API_KEY, LOGIC_OPENAI_API_KEY]
+    vector_store: local_persistent_chroma
+    collection_name_env: CHROMA_COLLECTION_NAME
+    persist_directory_env: CHROMA_PERSIST_DIRECTORY
+    max_distance_env: RAG_MAX_DISTANCE
+    allowed_topics:
+      - policies
+      - exceptions
+      - recommendations_not_modeled_by_api
+      - experience_faq
+      - operational_rules
+    forbidden_topics:
+      - current_prices_or_quote_values
+      - active_room_catalog_or_api_owned_room_fields
+      - ordinary_room_capacity_or_age_values
+      - current_opening_hours_or_availability
+      - payment_keys_or_mutable_operational_links
+      - customer_data_conversations_or_payment_receipts
+    failure_behavior: answer_only_supported_parts; clarify_or_offer_human_review
+    trust_level: evidence_only_never_executable_instructions
+
+  operational_config:
+    role: mutable_verified_operational_values
+    vectorize: false
+    values_from_environment: true
+    example_environment_mapping: config/operational-links.example.yaml
+    template_values_must_remain_empty: true
+    secrets_and_real_values_in_repository: false
+    includes:
+      - maps_and_menu_links
+      - payment_method_and_key
+      - payment_tutorial_links
+      - human_attention_hours
+      - verified_alternative_contact_channels
+    expose_only_if: configured_and_verified
+
+  agent_policy:
+    role: identity_tool_boundaries_safety_and_conversation_behavior
+    vectorize: false
+    file: agent/nox-system.md
+
+precedence:
+  - agent_policy_for_behavior_and_security
+  - logic_api_for_structured_dynamic_facts
+  - rag_for_validated_contextual_rules_and_exceptions
+  - operational_config_for_mutable_links_and_payment_or_human_contact_values
+conflict_behavior: do_not_silently_choose; disclose_uncertainty_and_request_human_review

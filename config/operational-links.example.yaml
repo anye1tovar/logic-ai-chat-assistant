@@ -1,0 +1,41 @@
+# Plantilla operativa no indexable. Los valores se cargan desde variables de entorno.
+# No añadir este archivo a la ingesta RAG. No guardar valores reales ni claves en Git.
+business:
+  name: ""
+  name_env: LOGIC_BUSINESS_NAME
+  city: ""
+  city_env: LOGIC_BUSINESS_CITY
+  timezone: ""
+  timezone_env: LOGIC_BUSINESS_TIMEZONE
+  address: ""
+  address_env: LOGIC_BUSINESS_ADDRESS
+  map_url: ""
+  map_url_env: LOGIC_MAP_URL
+  official_website_url: ""
+  official_website_url_env: LOGIC_OFFICIAL_WEBSITE_URL
+  escape_room_explainer_url: ""
+  escape_room_explainer_url_env: LOGIC_ESCAPE_ROOM_EXPLAINER_URL
+
+cafeteria:
+  menu_url: ""
+  menu_url_env: LOGIC_CAFETERIA_MENU_URL
+
+payments:
+  method_for_deposits: ""
+  method_for_deposits_env: LOGIC_PAYMENT_METHOD_FOR_DEPOSITS
+  typical_deposit_per_room_cop: null # Configurar/verificar en operación; nunca vectorizar.
+  typical_deposit_per_room_cop_env: LOGIC_TYPICAL_DEPOSIT_PER_ROOM_COP
+  bre_b_key_env: LOGIC_BRE_B_KEY # La llave real se suministra por entorno/secret manager.
+  nequi_to_bre_b_tutorial_url: ""
+  nequi_to_bre_b_tutorial_url_env: LOGIC_NEQUI_TO_BRE_B_TUTORIAL_URL
+  bancolombia_to_bre_b_tutorial_url: ""
+  bancolombia_to_bre_b_tutorial_url_env: LOGIC_BANCOLOMBIA_TO_BRE_B_TUTORIAL_URL
+
+human_attention:
+  timezone: ""
+  timezone_env: LOGIC_HUMAN_ATTENTION_TIMEZONE
+  documented_daily_window: ""
+  documented_daily_window_env: LOGIC_HUMAN_ATTENTION_HOURS
+  verified_for_exposure: false
+  alternative_contact_channel: ""
+  alternative_contact_channel_env: LOGIC_ALTERNATIVE_CONTACT_CHANNEL

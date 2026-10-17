@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Logic Escape Room RAG knowledge document metadata",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "kind",
+    "category",
+    "source_of_truth",
+    "business_source",
+    "documented_at",
+    "validation_status",
+    "requires_api_data",
+    "requires_human_for_exceptions",
+    "keywords"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "kind": { "enum": ["policy", "recommendation", "faq", "operational_rule"] },
+    "category": { "type": "string", "minLength": 1 },
+    "source_of_truth": { "const": "rag" },
+    "business_source": { "type": "string", "minLength": 1 },
+    "documented_at": { "type": "string", "format": "date" },
+    "validation_status": {
+      "enum": ["approved", "approved_with_open_issue", "pending_validation"]
+    },
+    "requires_api_data": { "type": "boolean" },
+    "requires_human_for_exceptions": { "type": "boolean" },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "room": { "type": "string" },
+    "open_issue": { "type": "string" }
+  },
+  "additionalProperties": false
+}

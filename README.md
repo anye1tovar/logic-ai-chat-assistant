@@ -40,6 +40,18 @@ The first MVP does not create reservations.
 
 See `docs/USER_SETUP_CHECKLIST.md` for the project-owner tasks.
 
+## Conocimiento y políticas de Nox
+
+El corpus documental, su índice y el pipeline de ingesta/búsqueda están en [`knowledge/`](knowledge/INDEX.md) y `backend/app/rag/`. El prompt del agente está separado en [`agent/nox-system.md`](agent/nox-system.md); la política de fuentes y la plantilla operativa no indexable están en `config/`. Los escenarios, criterios de aceptación y pendientes de integración están en `quality/`.
+
+La Fase 3 usa OpenAI Embeddings y una colección persistente local de Chroma. Para sincronizar el corpus, configura `OPENAI_API_KEY` (o `LOGIC_OPENAI_API_KEY`) en el `.env` local y ejecuta desde `backend/`:
+
+```bash
+python -m app.rag.ingest
+```
+
+La búsqueda interna está disponible mediante `app.rag.retriever.search_business_knowledge`; sus resultados conservan ruta y metadatos de origen.
+
 ## Fase 1: inicio local
 
 Requisitos: Python 3.12 o superior y Node.js 20 o superior.
