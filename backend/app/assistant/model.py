@@ -3,7 +3,7 @@ import json
 from openai import AsyncOpenAI
 from pydantic import ValidationError
 
-from app.assistant.schemas import CATEGORIES, RouteSelection
+from app.assistant.schemas import CATEGORIES, ChatTurn, RouteSelection
 from app.assistant.response_builder import evidence_messages
 from app.core.config import Settings, get_settings
 from app.core.prompts import ROUTE_SELECTION_PROMPT
@@ -84,20 +84,32 @@ class OpenAIChatModel:
             max_retries=2,
         )
 
-    async def select_route(self, user_message: str, current_date: str) -> RouteSelection:
-        response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
-            messages=[
+    async def select_route(
+        self,
+        user_message: str,
+        current_date: str,
+        history: list[ChatTurn] | None = None,
+    ) -> RouteSelection:
+        request = {
+            "model": self.settings.openai_model,
+            "messages": [
                 {
                     "role": "system",
                     "content": f"{ROUTE_SELECTION_PROMPT}\nFecha actual en America/Bogota: {current_date}.",
                 },
+                *(
+                    {"role": turn.role, "content": turn.content}
+                    for turn in (history or [])[-8:]
+                ),
                 {"role": "user", "content": user_message},
             ],
-            tools=[ROUTE_SELECTION_TOOL],
-            tool_choice={"type": "function", "function": {"name": "select_route"}},
-            parallel_tool_calls=False,
-        )
+            "tools": [ROUTE_SELECTION_TOOL],
+            "tool_choice": {"type": "function", "function": {"name": "select_route"}},
+            "parallel_tool_calls": False,
+        }
+        if self.settings.openai_reasoning_effort is not None:
+            request["reasoning_effort"] = self.settings.openai_reasoning_effort
+        response = await self.client.chat.completions.create(**request)
         choices = response.choices
         tool_calls = choices[0].message.tool_calls if choices else None
         if not tool_calls or len(tool_calls) != 1 or tool_calls[0].function.name != "select_route":
@@ -108,10 +120,15 @@ class OpenAIChatModel:
         except (json.JSONDecodeError, ValidationError, TypeError) as exc:
             raise ModelProtocolError("The model returned invalid route arguments.") from exc
 
-    async def generate_answer(self, user_message: str, evidence: dict) -> str:
+    async def generate_answer(
+        self,
+        user_message: str,
+        evidence: dict,
+        history: list[ChatTurn] | None = None,
+    ) -> str:
         response = await self.client.chat.completions.create(
             model=self.settings.openai_model,
-            messages=evidence_messages(user_message, evidence),
+            messages=evidence_messages(user_message, evidence, history),
             max_completion_tokens=self.settings.openai_chat_max_output_tokens,
         )
         choices = response.choices

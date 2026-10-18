@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from app.assistant.schemas import MissingField
+from app.assistant.schemas import ChatTurn, MissingField
 from app.core.prompts import FINAL_ANSWER_PROMPT
 from app.logic_api.errors import (
     LogicApiError,
@@ -43,7 +43,11 @@ def logic_error_answer(error: LogicApiError) -> str:
     return "No pude verificar esa información en el sistema de Logic. El equipo debe revisarla."
 
 
-def evidence_messages(question: str, evidence: dict[str, Any]) -> list[dict[str, str]]:
+def evidence_messages(
+    question: str,
+    evidence: dict[str, Any],
+    history: list[ChatTurn] | None = None,
+) -> list[dict[str, str]]:
     payload = json.dumps(
         {"pregunta": question, "evidencia": evidence},
         ensure_ascii=False,
@@ -51,5 +55,9 @@ def evidence_messages(question: str, evidence: dict[str, Any]) -> list[dict[str,
     )
     return [
         {"role": "system", "content": FINAL_ANSWER_PROMPT},
+        *(
+            {"role": turn.role, "content": turn.content}
+            for turn in (history or [])[-8:]
+        ),
         {"role": "user", "content": payload},
     ]

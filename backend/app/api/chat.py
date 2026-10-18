@@ -31,4 +31,6 @@ async def chat(
     request: ChatRequest,
     orchestrator: AssistantOrchestrator = Depends(get_orchestrator),
 ) -> ChatResponse:
-    return ChatResponse(answer=await orchestrator.reply(request.message))
+    return ChatResponse(
+        answer=await orchestrator.reply(request.message, history=request.history)
+    )

@@ -10,6 +10,8 @@ LOG_LEVEL=INFO
 
 OPENAI_API_KEY=
 OPENAI_MODEL=
+# Set to "none" for GPT-6 Luna function calls through Chat Completions.
+OPENAI_REASONING_EFFORT=none
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_CHAT_MAX_OUTPUT_TOKENS=400
 
@@ -43,7 +45,7 @@ LOGIC_OPERATIONAL_VALUES_VERIFIED=false
 
 Los valores de operación se cargan desde el entorno. `config/operational-links.example.yaml` solo documenta el mapeo y mantiene vacíos los valores; no se ingresa a RAG ni contiene secretos o enlaces reales. Exponer cada valor únicamente cuando esté configurado y verificado.
 
-El backend expone `POST /api/chat` con un cuerpo `{ "message": "..." }` y responde `{ "answer": "..." }`. El endpoint requiere `OPENAI_API_KEY` (también acepta `LOGIC_OPENAI_API_KEY`) y `OPENAI_MODEL`. Las consultas estructuradas requieren además `LOGIC_API_BASE_URL`. El selector del modelo solo puede escoger una ruta de lectura permitida; el backend valida los argumentos y ejecuta API/RAG. No se crean reservas.
+El backend expone `POST /api/chat` con un cuerpo `{ "message": "..." }` y responde `{ "answer": "..." }`. El endpoint requiere `OPENAI_API_KEY` (también acepta `LOGIC_OPENAI_API_KEY`) y `OPENAI_MODEL`. Para GPT-6 Luna en el selector de rutas, configura `OPENAI_REASONING_EFFORT=none`; otros modelos pueden requerir un esfuerzo distinto o no admitir ese parámetro. Las consultas estructuradas requieren además `LOGIC_API_BASE_URL`. El selector del modelo solo puede escoger una ruta de lectura permitida; el backend valida los argumentos y ejecuta API/RAG. No se crean reservas.
 
 Optional future variable:
 
@@ -81,6 +83,10 @@ cd frontend
 npm install
 npm run dev
 ```
+
+Inicia primero el backend con `uvicorn app.main:app --reload` desde `backend/`. En desarrollo, Vite reenvía `/api/*` a `http://127.0.0.1:8000`; puedes cambiar ese destino con `VITE_BACKEND_PROXY_TARGET` en `frontend/.env.local`. En despliegue, configura el servidor web para reenviar `/api/*` al backend. El navegador solo solicita `/api/chat`; no necesita la URL de Logic ni credenciales.
+
+El chat mantiene el transcript en memoria durante la sesión y envía hasta ocho mensajes anteriores como contexto conversacional. El backend usa ese historial para resolver referencias, pero no como evidencia para datos del negocio.
 
 ## RAG ingestion
 

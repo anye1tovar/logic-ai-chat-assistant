@@ -56,6 +56,10 @@ La búsqueda interna está disponible mediante `app.rag.retriever.search_busines
 
 El backend expone `POST /api/chat` para consultas en español. El flujo realiza una selección acotada de una sola ruta, valida sus argumentos, ejecuta Logic API y/o RAG desde el backend y genera la respuesta a partir de evidencia. No crea reservas ni confirma disponibilidad como reserva. Requiere `OPENAI_API_KEY`, `OPENAI_MODEL` y, para rutas estructuradas, `LOGIC_API_BASE_URL` en `.env`; consulta `docs/08_ENVIRONMENT_AND_COMMANDS.md` para iniciar el servicio.
 
+## Fase 5: interfaz de chat
+
+La interfaz React se conecta únicamente a `/api/chat`, conserva el transcript de la sesión, muestra estado de escritura y errores con reintento, y permite iniciar una conversación nueva. Para desarrollo local, inicia primero el backend y luego Vite; su proxy `/api` apunta al backend local y puede configurarse con `VITE_BACKEND_PROXY_TARGET` en `frontend/.env.local`.
+
 ## Fase 1: inicio local
 
 Requisitos: Python 3.12 o superior y Node.js 20 o superior.

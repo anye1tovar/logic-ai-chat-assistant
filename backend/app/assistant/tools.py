@@ -1,6 +1,7 @@
 """Explicit backend-owned execution for the small, read-only tool set."""
 
 import asyncio
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Callable, Literal
@@ -14,7 +15,13 @@ from app.rag.models import KnowledgeSearchResult
 from app.rag.retriever import search_business_knowledge
 from app.assistant.schemas import RouteSelection
 
-OutcomeMode = Literal["api_only", "rag_only", "api_and_rag"]
+OutcomeMode = Literal[
+    "api_only",
+    "rag_only",
+    "api_and_rag",
+    "operational_only",
+    "rag_and_operational",
+]
 DAY_NAMES_ES = ("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
 BOGOTA = ZoneInfo("America/Bogota")
 KnowledgeSearch = Callable[..., list[KnowledgeSearchResult]]
@@ -26,6 +33,7 @@ class AssistantEvidence:
     mode: OutcomeMode
     api_facts: list[dict[str, Any]] = field(default_factory=list)
     rag_facts: list[dict[str, Any]] = field(default_factory=list)
+    operational_facts: list[dict[str, Any]] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
     def as_prompt_data(self) -> dict[str, Any]:
@@ -33,6 +41,7 @@ class AssistantEvidence:
             "mode": self.mode,
             "api_facts": self.api_facts,
             "rag_facts": self.rag_facts,
+            "operational_facts": self.operational_facts,
             "warnings": self.warnings,
         }
 
@@ -101,6 +110,52 @@ def _rag_fact(result: KnowledgeSearchResult) -> dict[str, Any]:
         ),
         "distance": result.distance,
     }
+
+
+def _payment_operational_facts(
+    selection: RouteSelection,
+    settings: Settings,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    if "payments" not in selection.categories:
+        return [], []
+    if not settings.logic_operational_values_verified:
+        return [], ["El importe de abono por sala no está marcado como verificado en la configuración operativa."]
+    amount = settings.logic_typical_deposit_per_room_cop
+    if amount is None:
+        return [], ["El importe de abono por sala no está configurado; no inventar un valor."]
+    return [
+        {
+            "name": "abono_habitual",
+            "amount": amount,
+            "currency": "COP",
+            "scope": "por sala a reservar",
+            "source": "configuración operativa verificada",
+        }
+    ], []
+
+
+def _asks_for_exception_or_payment_review(message: str) -> bool:
+    normalized = "".join(
+        character
+        for character in unicodedata.normalize("NFD", message.casefold())
+        if unicodedata.category(character) != "Mn"
+    )
+    review_phrases = (
+        "excepcion",
+        "superamos el maximo",
+        "somos mas de",
+        "abonar menos",
+        "pagar menos",
+        "abono menor",
+        "abono reducido",
+        "en efectivo",
+        "comprobante",
+        "recibo",
+        "ya pague",
+        "ya transferi",
+        "adjunto",
+    )
+    return any(phrase in normalized for phrase in review_phrases)
 
 
 class AssistantTools:
@@ -179,7 +234,7 @@ class AssistantTools:
                     AssistantEvidence(
                         "api_only",
                         api_facts=[{"date": availability.date.isoformat(), "rooms": facts}],
-                        warnings=["La disponibilidad es una consulta en tiempo real y no confirma una reserva."],
+                        warnings=[],
                     )
                 )
         raise ValueError("Unsupported assistant route.")
@@ -190,6 +245,9 @@ class AssistantTools:
         user_message: str,
     ) -> ToolOutcome:
         query = (selection.query or user_message).strip()
+        operational_facts, operational_warnings = _payment_operational_facts(
+            selection, self.settings
+        )
         try:
             results = await asyncio.to_thread(
                 self.knowledge_search,
@@ -200,21 +258,48 @@ class AssistantTools:
                 settings=self.settings,
             )
         except Exception:
+            if operational_facts:
+                return ToolOutcome(
+                    AssistantEvidence(
+                        "operational_only",
+                        operational_facts=operational_facts,
+                        warnings=operational_warnings + [
+                            "No se pudo consultar la política de pagos; limita la respuesta al importe habitual y no afirmes otras condiciones."
+                        ],
+                    )
+                )
             return ToolOutcome(
                 AssistantEvidence("rag_only"),
                 fallback_answer="No pude consultar las políticas de Logic en este momento. El equipo debe verificar el caso.",
                 needs_human=True,
             )
         if not results:
+            if operational_facts:
+                return ToolOutcome(
+                    AssistantEvidence(
+                        "operational_only",
+                        operational_facts=operational_facts,
+                        warnings=operational_warnings,
+                    )
+                )
             return ToolOutcome(
                 AssistantEvidence("rag_only"),
                 fallback_answer="No encuentro una política documentada que responda con suficiente certeza. Ese caso requiere confirmación del equipo de Logic.",
                 needs_human=True,
             )
         return ToolOutcome(
-            AssistantEvidence("rag_only", rag_facts=[_rag_fact(item) for item in results]),
-            needs_human=any(
-                bool(item.metadata.get("requires_human_for_exceptions")) for item in results
+            AssistantEvidence(
+                "rag_and_operational" if operational_facts else "rag_only",
+                rag_facts=[_rag_fact(item) for item in results],
+                operational_facts=operational_facts,
+                warnings=operational_warnings,
+            ),
+            needs_human=(
+                _asks_for_exception_or_payment_review(user_message)
+                and any(
+                    bool(item.metadata.get("requires_human_for_exceptions"))
+                    for item in results
+                )
             ),
         )
 
