@@ -113,3 +113,9 @@ python -m app.evaluation.run --dataset ../evaluation/cases.json
 ```
 
 These are target conventions; Codex may adjust them if the final structure differs.
+
+## Security and privacy before deployment
+
+The browser sends the current message and up to eight previous transcript messages to the assistant backend. The backend may send this context to the configured model provider. Reservation conversations can contain names and phone numbers; use synthetic data during evaluation and define consent, retention, deletion and privacy notice procedures before real customer use.
+
+The prototype has no user authentication or request rate limiting, and the Logic API has no server-to-server authentication. Keep it behind appropriate access controls and traffic limits until those protections exist. CORS is not authentication. The backend keeps secrets in environment configuration; the frontend only needs the same-origin `/api/chat` route. See `docs/07_PHASE_HARDENING.md` for the completed review and detailed production gaps.

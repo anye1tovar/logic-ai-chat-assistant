@@ -1,0 +1,28 @@
+{
+  "run_id": "dd5fca9e91f24ae68ff23de426eb2caf",
+  "created_at": "2026-10-18T18:10:20.344457+00:00",
+  "dataset_version": "1.0.0",
+  "total_cases": 40,
+  "route_accuracy": 1.0,
+  "source_accuracy": 1.0,
+  "cases_with_errors": 0,
+  "latency_seconds": {
+    "mean": 5.332002,
+    "median": 5.224245,
+    "p95": 7.679406
+  },
+  "manual_review": {
+    "reviewed_cases": 0,
+    "hallucination_rate": null,
+    "correct_abstention_cases": 0,
+    "faithfulness_mean": null,
+    "relevance_mean": null
+  },
+  "code_revision": "32832660c8ab415d0c62f2e9210d772ae2ebb732",
+  "model": "gpt-6-luna",
+  "prompt_sha256": "4ff142c94fbbc23f1fc56230c6fe637a88e8de8c9b52ecd2fa5dc2adc51281a8",
+  "dataset_sha256": "c87f9835ec3d3812be02935425cd29980fec0a0a98de8446b73480c428df4885",
+  "knowledge_sha256": "f77facc1a30d8f386d9f17a56e1fbbdad29d116b6d713bc720dcafb6919a33b0",
+  "results_file": "..\\evaluation\\results\\raw_runs.jsonl",
+  "latency_note": "Duraciones medidas localmente; no incluyen calibración entre máquinas."
+}

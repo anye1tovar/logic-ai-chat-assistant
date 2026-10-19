@@ -1,0 +1,385 @@
+{
+  "input_file": "matriz_evaluacion_manual.csv",
+  "total_cases": 40,
+  "overall": {
+    "faithfulness": {
+      "n": 40,
+      "mean": 1.475,
+      "counts": {
+        "0": 8,
+        "1": 5,
+        "2": 27
+      },
+      "percentages": {
+        "0": 20.0,
+        "1": 12.5,
+        "2": 67.5
+      }
+    },
+    "relevance": {
+      "n": 40,
+      "mean": 1.5,
+      "counts": {
+        "0": 9,
+        "1": 2,
+        "2": 29
+      },
+      "percentages": {
+        "0": 22.5,
+        "1": 5.0,
+        "2": 72.5
+      }
+    },
+    "commercial_accuracy": {
+      "n": 40,
+      "counts": {
+        "Sí": 29,
+        "Parcial": 0,
+        "No": 11,
+        "No aplica": 0
+      },
+      "percentages": {
+        "Sí": 72.5,
+        "Parcial": 0.0,
+        "No": 27.5,
+        "No aplica": 0.0
+      }
+    },
+    "exception_handling": {
+      "n": 0,
+      "counts": {
+        "Sí": 0,
+        "Parcial": 0,
+        "No": 0,
+        "No aplica": 0
+      },
+      "percentages": {
+        "Sí": null,
+        "Parcial": null,
+        "No": null,
+        "No aplica": null
+      }
+    },
+    "unsupported_claims": {
+      "n": 40,
+      "counts": {
+        "Sí": 0,
+        "Parcial": 0,
+        "No": 40,
+        "No aplica": 0
+      },
+      "percentages": {
+        "Sí": 0.0,
+        "Parcial": 0.0,
+        "No": 100.0,
+        "No aplica": 0.0
+      }
+    }
+  },
+  "by_category": {
+    "ambiguous_unsupported_exception": {
+      "cases": 10,
+      "faithfulness": {
+        "n": 10,
+        "mean": 1.2,
+        "counts": {
+          "0": 3,
+          "1": 2,
+          "2": 5
+        },
+        "percentages": {
+          "0": 30.0,
+          "1": 20.0,
+          "2": 50.0
+        }
+      },
+      "relevance": {
+        "n": 10,
+        "mean": 1.3,
+        "counts": {
+          "0": 3,
+          "1": 1,
+          "2": 6
+        },
+        "percentages": {
+          "0": 30.0,
+          "1": 10.0,
+          "2": 60.0
+        }
+      },
+      "commercial_accuracy": {
+        "n": 10,
+        "counts": {
+          "Sí": 7,
+          "Parcial": 0,
+          "No": 3,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 70.0,
+          "Parcial": 0.0,
+          "No": 30.0,
+          "No aplica": 0.0
+        }
+      },
+      "exception_handling": {
+        "n": 0,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 0,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": null,
+          "Parcial": null,
+          "No": null,
+          "No aplica": null
+        }
+      },
+      "unsupported_claims": {
+        "n": 10,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 10,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 0.0,
+          "Parcial": 0.0,
+          "No": 100.0,
+          "No aplica": 0.0
+        }
+      }
+    },
+    "availability_quote": {
+      "cases": 10,
+      "faithfulness": {
+        "n": 10,
+        "mean": 1.7,
+        "counts": {
+          "0": 1,
+          "1": 1,
+          "2": 8
+        },
+        "percentages": {
+          "0": 10.0,
+          "1": 10.0,
+          "2": 80.0
+        }
+      },
+      "relevance": {
+        "n": 10,
+        "mean": 1.8,
+        "counts": {
+          "0": 1,
+          "1": 0,
+          "2": 9
+        },
+        "percentages": {
+          "0": 10.0,
+          "1": 0.0,
+          "2": 90.0
+        }
+      },
+      "commercial_accuracy": {
+        "n": 10,
+        "counts": {
+          "Sí": 8,
+          "Parcial": 0,
+          "No": 2,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 80.0,
+          "Parcial": 0.0,
+          "No": 20.0,
+          "No aplica": 0.0
+        }
+      },
+      "exception_handling": {
+        "n": 0,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 0,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": null,
+          "Parcial": null,
+          "No": null,
+          "No aplica": null
+        }
+      },
+      "unsupported_claims": {
+        "n": 10,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 10,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 0.0,
+          "Parcial": 0.0,
+          "No": 100.0,
+          "No aplica": 0.0
+        }
+      }
+    },
+    "general_structured": {
+      "cases": 10,
+      "faithfulness": {
+        "n": 10,
+        "mean": 1.5,
+        "counts": {
+          "0": 2,
+          "1": 1,
+          "2": 7
+        },
+        "percentages": {
+          "0": 20.0,
+          "1": 10.0,
+          "2": 70.0
+        }
+      },
+      "relevance": {
+        "n": 10,
+        "mean": 1.4,
+        "counts": {
+          "0": 3,
+          "1": 0,
+          "2": 7
+        },
+        "percentages": {
+          "0": 30.0,
+          "1": 0.0,
+          "2": 70.0
+        }
+      },
+      "commercial_accuracy": {
+        "n": 10,
+        "counts": {
+          "Sí": 7,
+          "Parcial": 0,
+          "No": 3,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 70.0,
+          "Parcial": 0.0,
+          "No": 30.0,
+          "No aplica": 0.0
+        }
+      },
+      "exception_handling": {
+        "n": 0,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 0,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": null,
+          "Parcial": null,
+          "No": null,
+          "No aplica": null
+        }
+      },
+      "unsupported_claims": {
+        "n": 10,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 10,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 0.0,
+          "Parcial": 0.0,
+          "No": 100.0,
+          "No aplica": 0.0
+        }
+      }
+    },
+    "room_price_conditions": {
+      "cases": 10,
+      "faithfulness": {
+        "n": 10,
+        "mean": 1.5,
+        "counts": {
+          "0": 2,
+          "1": 1,
+          "2": 7
+        },
+        "percentages": {
+          "0": 20.0,
+          "1": 10.0,
+          "2": 70.0
+        }
+      },
+      "relevance": {
+        "n": 10,
+        "mean": 1.5,
+        "counts": {
+          "0": 2,
+          "1": 1,
+          "2": 7
+        },
+        "percentages": {
+          "0": 20.0,
+          "1": 10.0,
+          "2": 70.0
+        }
+      },
+      "commercial_accuracy": {
+        "n": 10,
+        "counts": {
+          "Sí": 7,
+          "Parcial": 0,
+          "No": 3,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 70.0,
+          "Parcial": 0.0,
+          "No": 30.0,
+          "No aplica": 0.0
+        }
+      },
+      "exception_handling": {
+        "n": 0,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 0,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": null,
+          "Parcial": null,
+          "No": null,
+          "No aplica": null
+        }
+      },
+      "unsupported_claims": {
+        "n": 10,
+        "counts": {
+          "Sí": 0,
+          "Parcial": 0,
+          "No": 10,
+          "No aplica": 0
+        },
+        "percentages": {
+          "Sí": 0.0,
+          "Parcial": 0.0,
+          "No": 100.0,
+          "No aplica": 0.0
+        }
+      }
+    }
+  }
+}

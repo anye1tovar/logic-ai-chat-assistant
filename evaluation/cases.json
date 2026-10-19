@@ -1,0 +1,676 @@
+{
+  "dataset_version": "1.0.0",
+  "description": "Casos iniciales para la evaluación repetible del asistente Nox. Las respuestas se califican manualmente contra los criterios.",
+  "cases": [
+    {
+      "id": "GEN-01",
+      "category": "general_structured",
+      "question": "¿Qué salas tienen?",
+      "expected_route": "get_rooms",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Listar las salas activas usando el catálogo vigente.",
+      "reference_answer_or_criteria": [
+        "Responde en español",
+        "Usa nombres del catálogo API",
+        "No inventa salas"
+      ],
+      "should_answer": true,
+      "notes": "Consulta general de catálogo"
+    },
+    {
+      "id": "GEN-02",
+      "category": "general_structured",
+      "question": "¿Cuál es la dirección de Logic Escape Room?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Informar la dirección documentada.",
+      "reference_answer_or_criteria": [
+        "Cl. 32 #5-72, 3 piso, Tunja, Boyacá",
+        "No inventar parqueadero"
+      ],
+      "should_answer": true,
+      "notes": "Ubicación"
+    },
+    {
+      "id": "GEN-03",
+      "category": "general_structured",
+      "question": "Pásame el link de Google Maps, por favor.",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Compartir el enlace de Maps solo si está configurado; si no, dar la dirección documentada sin fabricar un enlace.",
+      "reference_answer_or_criteria": [
+        "Incluye enlace solo desde configuración vigente",
+        "Si el enlace no está disponible, comunica la dirección o explica que no puede verificarlo",
+        "No fabrica un enlace"
+      ],
+      "should_answer": true,
+      "notes": "Enlace depende de configuración/conocimiento autorizado"
+    },
+    {
+      "id": "GEN-04",
+      "category": "general_structured",
+      "question": "¿A qué hora abren los domingos?",
+      "expected_route": "get_opening_hours",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar el horario vigente para domingo.",
+      "reference_answer_or_criteria": [
+        "Usa horario API",
+        "Si no hay horario, lo reconoce y escala"
+      ],
+      "should_answer": true,
+      "notes": "Horario estructurado"
+    },
+    {
+      "id": "GEN-05",
+      "category": "general_structured",
+      "question": "¿Cuánto dura el juego y con cuánta anticipación llegamos?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Responder duración y recomendación de llegada documentadas.",
+      "reference_answer_or_criteria": [
+        "Solo datos documentados",
+        "No confundir duración de juego con tiempo total"
+      ],
+      "should_answer": true,
+      "notes": "Duración y llegada"
+    },
+    {
+      "id": "GEN-06",
+      "category": "general_structured",
+      "question": "¿Puedo llevar mi torta de cumpleaños?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Informar que puede llevar torta propia sin costo y que Logic no ofrece tortas.",
+      "reference_answer_or_criteria": [
+        "Torta propia permitida sin costo",
+        "No afirmar que Logic vende tortas"
+      ],
+      "should_answer": true,
+      "notes": "Política de cumpleaños"
+    },
+    {
+      "id": "GEN-07",
+      "category": "general_structured",
+      "question": "¿Me compartes el menú de la cafetería?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Compartir menú desde la configuración verificada o informar que no puede confirmarlo.",
+      "reference_answer_or_criteria": [
+        "No inventa productos ni precios",
+        "Comparte enlace solo si está configurado"
+      ],
+      "should_answer": true,
+      "notes": "Evitar duplicar menú dinámico"
+    },
+    {
+      "id": "GEN-08",
+      "category": "general_structured",
+      "question": "¿Cuánto tiempo podemos quedarnos en la cafetería?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar que el tiempo de uso es libre.",
+      "reference_answer_or_criteria": [
+        "Indica tiempo libre",
+        "No inventa antelación"
+      ],
+      "should_answer": true,
+      "notes": "Regla operativa"
+    },
+    {
+      "id": "GEN-09",
+      "category": "general_structured",
+      "question": "¿Puedo entrar con bebidas que compré afuera?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar la política documentada para bebidas propias.",
+      "reference_answer_or_criteria": [
+        "No permite bebidas propias en cafetería",
+        "Distingue cafetería de salas cuando aplique"
+      ],
+      "should_answer": true,
+      "notes": "Alimentos y bebidas"
+    },
+    {
+      "id": "GEN-10",
+      "category": "general_structured",
+      "question": "¿Cuál es el Instagram de Logic?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Compartir el enlace de Instagram configurado si está disponible.",
+      "reference_answer_or_criteria": [
+        "Usa enlace configurado",
+        "No inventa usuario ni URL"
+      ],
+      "should_answer": true,
+      "notes": "Enlaces oficiales"
+    },
+    {
+      "id": "POL-01",
+      "category": "room_price_conditions",
+      "question": "Dime los precios que manejan entre semana.",
+      "expected_route": "get_rates",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar tarifas vigentes entre semana.",
+      "reference_answer_or_criteria": [
+        "Precios actuales desde API",
+        "COP y claridad por número de participantes"
+      ],
+      "should_answer": true,
+      "notes": "Tarifas estructuradas"
+    },
+    {
+      "id": "POL-02",
+      "category": "room_price_conditions",
+      "question": "Somos 4, ¿cuánto pagaríamos el sábado?",
+      "expected_route": "get_rates",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar la tarifa vigente por persona para el tipo de día conocido; para el total concreto, pedir la fecha exacta y usar la cotización API.",
+      "reference_answer_or_criteria": [
+        "Tarifa por persona viene de API",
+        "No calcula el total manualmente",
+        "Si pide total, solicita fecha exacta para cotizar"
+      ],
+      "should_answer": true,
+      "notes": "El sábado determina el tipo de tarifa, pero no una fecha concreta para una cotización total."
+    },
+    {
+      "id": "POL-03",
+      "category": "room_price_conditions",
+      "question": "Para 8 personas en dos salas, ¿nos cobran más por persona que si fuéramos 7?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar la regla del tramo de 7 y pedir fecha antes de consultar el monto concreto.",
+      "reference_answer_or_criteria": [
+        "Precio por persona conserva tramo de 7 para 7 o más",
+        "No generaliza capacidades entre salas",
+        "No da total concreto sin cotización API y fecha"
+      ],
+      "should_answer": true,
+      "notes": "Primero se responde la regla; el precio total queda pendiente de fecha"
+    },
+    {
+      "id": "POL-04",
+      "category": "room_price_conditions",
+      "question": "¿Cuánto cuesta Manicomio para dos personas el 2026-11-14?",
+      "expected_route": "get_quote",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar cotización para fecha y asistentes indicados.",
+      "reference_answer_or_criteria": [
+        "Fecha 2026-11-14",
+        "2 asistentes",
+        "Total tomado de quote API"
+      ],
+      "should_answer": true,
+      "notes": "Cotización concreta"
+    },
+    {
+      "id": "POL-05",
+      "category": "room_price_conditions",
+      "question": "¿Cuál es el abono para separar una sala?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Indicar el importe solo desde configuración operativa verificada y explicar que es por sala.",
+      "reference_answer_or_criteria": [
+        "No usar monto histórico del corpus",
+        "No confundir con precio total",
+        "Escalar dudas de pago"
+      ],
+      "should_answer": true,
+      "notes": "Dato de abono desde entorno"
+    },
+    {
+      "id": "POL-06",
+      "category": "room_price_conditions",
+      "question": "¿Puedo mandar menos del abono habitual?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "No rechazar ni aprobar la excepción; solicitar revisión humana.",
+      "reference_answer_or_criteria": [
+        "No autoriza abono reducido",
+        "Solicita revisión humana"
+      ],
+      "should_answer": false,
+      "notes": "Excepción de pago"
+    },
+    {
+      "id": "POL-07",
+      "category": "room_price_conditions",
+      "question": "¿Cuál es el mínimo y máximo de jugadores en Manicomio?",
+      "expected_route": "get_rooms",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Responder capacidad ordinaria desde catálogo API.",
+      "reference_answer_or_criteria": [
+        "Límites desde API",
+        "No usa capacidades históricas RAG"
+      ],
+      "should_answer": true,
+      "notes": "Propiedades estructuradas por sala"
+    },
+    {
+      "id": "POL-08",
+      "category": "room_price_conditions",
+      "question": "¿Qué edad mínima tiene Manicomio para entrar sin adulto?",
+      "expected_route": "get_rooms",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar edad vigente en API o admitir que no puede verificarse.",
+      "reference_answer_or_criteria": [
+        "Edad específica no sale del corpus histórico",
+        "No inventar edad"
+      ],
+      "should_answer": true,
+      "notes": "Edad por sala"
+    },
+    {
+      "id": "POL-09",
+      "category": "room_price_conditions",
+      "question": "¿Se puede reservar Manicomio para 8 personas en una sola sala?",
+      "expected_route": "get_rooms",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Verificar el límite ordinario actual en el catálogo API.",
+      "reference_answer_or_criteria": [
+        "No superar máximo API sin autorización humana",
+        "No atribuir a Manicomio excepciones de otra sala"
+      ],
+      "should_answer": true,
+      "notes": "La consulta se resuelve con capacidad API; la excepción Portal no aplica"
+    },
+    {
+      "id": "POL-10",
+      "category": "room_price_conditions",
+      "question": "Si somos 9, ¿pueden jugar repartidos en dos salas y mantener el precio por persona del grupo de 7?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar tramo de precio y pedir fecha para cotizar el total si lo requieren.",
+      "reference_answer_or_criteria": [
+        "Tramo de 7 aplica a grupos >=7 distribuidos en salas",
+        "Cotización total requiere API",
+        "No reservar ni confirmar"
+      ],
+      "should_answer": true,
+      "notes": "Paráfrasis de grupo grande"
+    },
+    {
+      "id": "AVQ-01",
+      "category": "availability_quote",
+      "question": "Quiero reservar Manicomio para mañana, somos dos.",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Resolver mañana en America/Bogota y consultar disponibilidad en vivo.",
+      "reference_answer_or_criteria": [
+        "Fecha correcta",
+        "Consulta disponibilidad API",
+        "No dice que quedó reservada"
+      ],
+      "should_answer": true,
+      "notes": "Disponibilidad relativa"
+    },
+    {
+      "id": "AVQ-02",
+      "category": "availability_quote",
+      "question": "¿Hay cupo el 2026-11-14?",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar disponibilidad actual para fecha indicada.",
+      "reference_answer_or_criteria": [
+        "Usa fecha exacta",
+        "No almacena disponibilidad en caché"
+      ],
+      "should_answer": true,
+      "notes": "Disponibilidad en vivo"
+    },
+    {
+      "id": "AVQ-03",
+      "category": "availability_quote",
+      "question": "¿A qué horas está libre Portal este viernes?",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Resolver fecha del viernes y consultar API.",
+      "reference_answer_or_criteria": [
+        "Fecha resuelta con contexto temporal",
+        "Muestra solo franjas disponibles API"
+      ],
+      "should_answer": true,
+      "notes": "Fecha relativa con día de semana"
+    },
+    {
+      "id": "AVQ-04",
+      "category": "availability_quote",
+      "question": "Cotízame para el 2026-11-14, somos 5 jugadores.",
+      "expected_route": "get_quote",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Llamar quote con date y attendees exactos.",
+      "reference_answer_or_criteria": [
+        "Fecha 2026-11-14",
+        "Asistentes 5",
+        "No cálculo manual"
+      ],
+      "should_answer": true,
+      "notes": "Quote con argumentos completos"
+    },
+    {
+      "id": "AVQ-05",
+      "category": "availability_quote",
+      "question": "¿Cuánto vale para 3?",
+      "expected_route": "get_rates",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Informar los rangos vigentes por persona entre semana y fin de semana/festivo y pedir fecha para cotizar total.",
+      "reference_answer_or_criteria": [
+        "Usa tarifas API",
+        "Aclara que cambia según tipo de día",
+        "No inventa el total",
+        "Pide fecha para una cotización concreta"
+      ],
+      "should_answer": true,
+      "notes": "Se puede orientar con tarifa por persona aunque falte la fecha exacta."
+    },
+    {
+      "id": "AVQ-06",
+      "category": "availability_quote",
+      "question": "¿Qué horarios hay?",
+      "expected_route": "get_opening_hours",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Dar el horario general y preguntar fecha si desea consultar disponibilidad de una sesión.",
+      "reference_answer_or_criteria": [
+        "Horarios generales vienen de API",
+        "No los presenta como cupos disponibles",
+        "Pregunta qué fecha interesa"
+      ],
+      "should_answer": true,
+      "notes": "Horario general es distinto de disponibilidad por fecha"
+    },
+    {
+      "id": "AVQ-07",
+      "category": "availability_quote",
+      "question": "para las 5 pm por favor",
+      "history": [
+        {
+          "role": "user",
+          "content": "Quiero reservar para mañana Manicomio para dos personas"
+        },
+        {
+          "role": "assistant",
+          "content": "Para mañana, 19 de octubre, Manicomio tiene disponibilidad para dos personas a las 17:00, 18:30 y 20:00. ¿Cuál horario prefieren?"
+        }
+      ],
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Conservar sala y fecha del contexto al seleccionar una franja.",
+      "reference_answer_or_criteria": [
+        "No vuelve a preguntar la sala",
+        "Valida la franja seleccionada con disponibilidad vigente"
+      ],
+      "should_answer": true,
+      "notes": "Resolución de contexto multi-turno"
+    },
+    {
+      "id": "AVQ-08",
+      "category": "availability_quote",
+      "question": "¿Podemos ir el lunes a las 8 de la noche?",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Resolver el lunes y verificar en vivo si hay alguna sala disponible a esa hora; no basta con consultar horario general.",
+      "reference_answer_or_criteria": [
+        "Consulta disponibilidad API",
+        "No promete franja que no aparezca disponible",
+        "Si falta sala, informa opciones disponibles o pregunta cuál prefiere"
+      ],
+      "should_answer": true,
+      "notes": "La consulta pregunta por un cupo concreto, no solo por hora de apertura"
+    },
+    {
+      "id": "AVQ-09",
+      "category": "availability_quote",
+      "question": "Quiero disponibilidad para ayer en Manicomio.",
+      "expected_route": "clarify",
+      "expected_source": [],
+      "expected_behavior": "Detectar que la fecha ya pasó y pedir una fecha futura sin llamar a la API.",
+      "reference_answer_or_criteria": [
+        "No altera la fecha sin decirlo",
+        "No invoca API con fecha pasada",
+        "Pide una fecha futura"
+      ],
+      "should_answer": false,
+      "notes": "La ruta correcta es aclarar la fecha inválida; no se consulta disponibilidad."
+    },
+    {
+      "id": "AVQ-10",
+      "category": "availability_quote",
+      "question": "Cotiza para 12 personas el 2026-11-14.",
+      "expected_route": "get_quote",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar quote API; si la API no puede cotizar el grupo, escalar sin calcular a mano.",
+      "reference_answer_or_criteria": [
+        "Usa quote API",
+        "No extrapola precios"
+      ],
+      "should_answer": true,
+      "notes": "Grupo grande y quote"
+    },
+    {
+      "id": "EDGE-01",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Quiero ir mañana.",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar las opciones de disponibilidad para mañana y preguntar sala u horario para continuar; no afirmar reserva.",
+      "reference_answer_or_criteria": [
+        "Usa disponibilidad actual de API",
+        "No inventa una sala elegida ni cantidad de participantes",
+        "Pregunta sala u horario para continuar",
+        "No afirma reserva"
+      ],
+      "should_answer": true,
+      "notes": "Consulta útil de disponibilidad, seguida por preguntas para completar la solicitud."
+    },
+    {
+      "id": "EDGE-02",
+      "category": "ambiguous_unsupported_exception",
+      "question": "¿Qué precio tiene?",
+      "expected_route": "get_rates",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Dar contexto general de tarifas y preguntar cantidad de personas y fecha antes de un total concreto.",
+      "reference_answer_or_criteria": [
+        "Aclara que varía entre semana y fin de semana/festivo",
+        "No inventa un precio aplicable a un grupo sin datos",
+        "Pide fecha y cantidad"
+      ],
+      "should_answer": true,
+      "notes": "Pregunta incompleta que puede responderse parcialmente con tarifas de referencia"
+    },
+    {
+      "id": "EDGE-03",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Somos 8 y queremos Portal, ¿nos dejan entrar a todos?",
+      "expected_route": "get_rooms",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar la capacidad vigente de Portal, informar que ocho personas no caben juntas y ofrecer consultar una alternativa con el equipo.",
+      "reference_answer_or_criteria": [
+        "Usa la capacidad devuelta por API",
+        "No aprueba ni inventa un cupo excepcional",
+        "Ofrece consultar una alternativa con el equipo"
+      ],
+      "should_answer": true,
+      "notes": "Sin una excepción específica planteada, basta con informar el límite API y escalar la alternativa."
+    },
+    {
+      "id": "EDGE-04",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Mi hijo tiene 8 años, ¿puede entrar a cualquier sala?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar regla transversal, no asegurar entrada a todas las salas y pedir sala para revisar su dato API.",
+      "reference_answer_or_criteria": [
+        "No asegura entrada a cualquier sala",
+        "No reemplaza edades API",
+        "Pregunta qué sala tienen en mente"
+      ],
+      "should_answer": true,
+      "notes": "La edad específica API requiere identificar sala"
+    },
+    {
+      "id": "EDGE-05",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Tengo epilepsia, ¿qué sala es segura para mí?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "No garantizar seguridad; sugerir consultar al equipo y a profesionales de salud.",
+      "reference_answer_or_criteria": [
+        "No da consejo médico",
+        "Escala caso individual"
+      ],
+      "should_answer": false,
+      "notes": "Salud y accesibilidad"
+    },
+    {
+      "id": "EDGE-06",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Ya hice la transferencia, te adjunto el comprobante.",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Solicitar siempre verificación humana y no afirmar recepción ni confirmación.",
+      "reference_answer_or_criteria": [
+        "Verificación humana obligatoria",
+        "No confirma pago"
+      ],
+      "should_answer": false,
+      "notes": "Prueba de política; el runner no adjunta archivos"
+    },
+    {
+      "id": "EDGE-07",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Necesito cancelar y que me devuelvan el abono.",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Explicar política documentada y escalar si requiere decisión particular.",
+      "reference_answer_or_criteria": [
+        "No promete reembolso",
+        "No modifica reserva"
+      ],
+      "should_answer": true,
+      "notes": "Cancelación"
+    },
+    {
+      "id": "EDGE-08",
+      "category": "ambiguous_unsupported_exception",
+      "question": "¿Tienen un paquete para una propuesta de matrimonio con decoración exclusiva?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "No inventar paquetes ni precios; ofrecer que el equipo revise el evento.",
+      "reference_answer_or_criteria": [
+        "No promete exclusividad",
+        "Escala evento personalizado"
+      ],
+      "should_answer": false,
+      "notes": "Evento especial"
+    },
+    {
+      "id": "EDGE-09",
+      "category": "ambiguous_unsupported_exception",
+      "question": "¿Puedo entrar con una cerveza a la cafetería?",
+      "expected_route": "search_business_knowledge",
+      "expected_source": [
+        "rag"
+      ],
+      "expected_behavior": "Negar con amabilidad según política de bebidas propias.",
+      "reference_answer_or_criteria": [
+        "No bebidas propias en cafetería",
+        "No contradice política"
+      ],
+      "should_answer": true,
+      "notes": "Caso que no debe generalizarse"
+    },
+    {
+      "id": "EDGE-10",
+      "category": "ambiguous_unsupported_exception",
+      "question": "Quiero reservar para mañana a las 5 pm.",
+      "expected_route": "get_availability",
+      "expected_source": [
+        "api"
+      ],
+      "expected_behavior": "Consultar la disponibilidad real para mañana a las 17:00. Con los resultados, informar qué salas están disponibles o proponer horarios alternativos y continuar solicitando los datos faltantes para la reserva; no afirmar que quedó reservada.",
+      "reference_answer_or_criteria": [
+        "Consulta disponibilidad en API para la fecha y hora indicadas",
+        "Si está disponible, comunica las salas y pregunta cuál elige",
+        "Si no está disponible, ofrece opciones devueltas por la API",
+        "Continúa recabando sala y cantidad de personas",
+        "No afirma que la reserva está confirmada"
+      ],
+      "should_answer": true,
+      "notes": "Consulta disponibilidad primero; después continúa el flujo de reserva según la respuesta de API."
+    }
+  ]
+}

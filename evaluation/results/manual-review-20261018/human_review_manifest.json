@@ -1,0 +1,59 @@
+{
+  "manifest_version": "1.0",
+  "source_attachment_name": "matriz_evaluacion - matriz_evaluacion.csv",
+  "source_sha256": "14ca482daf7a81a499348038892928c04a6b2e7ee24821dc3c2019d58e1c62ec",
+  "repository_copy": "evaluation/review/matriz_evaluacion_manual.csv",
+  "copy_sha256": "14ca482daf7a81a499348038892928c04a6b2e7ee24821dc3c2019d58e1c62ec",
+  "case_count": 40,
+  "unique_case_ids": 40,
+  "nonempty_answers": 40,
+  "human_value_counts": {
+    "Fidelidad (0, 1, 2)": {
+      "2": 27,
+      "0": 8,
+      "1": 5
+    },
+    "Relevancia (0, 1, 2)": {
+      "2": 29,
+      "0": 9,
+      "1": 2
+    },
+    "Exactitud de información comercial": {
+      "Sí": 29,
+      "No": 11
+    },
+    "Manejo correcto de excepciones o incertidumbre": {
+      "": 40
+    },
+    "Presencia de afirmaciones no sustentadas": {
+      "No": 40
+    },
+    "Observaciones del evaluador": {
+      "": 26,
+      "No respondió la información directamente solicitada sobre la dirección de Logic Escape Room que sé que tiene confirgurara en el RAG": 1,
+      "Dice que no encuentra la política documentada, pero sé que sí existe en el RAG": 1,
+      "Responde Claro que sí, y luego dice que No se puede, la información es correcta pero la frase Claro que sí, confunde al usuario.": 1,
+      "No responde la información solicitada sobre el arroba de instagram de logic o el link de instagram.": 1,
+      "No responde la pregunta realizada y en su lugar se confunde y responde la lista de salas.": 1,
+      "Empieza la frase con Claro que sí y luego dice que no, esto es confuson para el usuario. Además para manicomio existe una excepción de que sí pueden ingresar 8 personas a la misma sala si el cliente lo solicita.": 1,
+      "No responde lo que se le pregunto y en lugar de eso da información general de salas y precios.": 1,
+      "A pesar de que la intención de reserva es clara y dice fecha y sala, no responde con los horarios disponibles como debería.": 1,
+      "Le falto decir que de lunes a miercoles solo se atiende con previa reserva, el API de horarios de logic sí responde con esta información.": 1,
+      "Esta mal la respuesta, verifique en el sistema de logiuc y sí hay disponibilidad para mañana de todas las salas.": 1,
+      "Confude al usuario cuando dice Claro que sí, y luego responde que no se puede ingresar a Portal 8 personas, la información es correcta, pero el Claro que sí al inicio es confuso para el cliente.": 1,
+      "Debió responder Portal o Manicomio, o al menos redireccionar la pregunta a un humano.": 1,
+      "Está bien, pero me gustaria que ne lugar de sugerirle al cliente que lo revise con el equipo, le diga que se le va a transferir la conversacion al equipo para que revisen el caso": 1,
+      "No responde sobre las salas disponibles a pesar de que se indica la intención de reservar, la fecha y hora especicamente.": 1
+    }
+  },
+  "route_observed_values": {
+    "Sin selección": 40
+  },
+  "source_values": {
+    "Ninguna: falló antes de consultar herramientas": 40
+  },
+  "route_source_provenance_note": "All route/source values match the previous failed runner attempt; excluded from human score calculations and not treated as observations from the manual run.",
+  "consolidation_command": "python evaluation/consolidate.py evaluation/review/matriz_evaluacion_manual.csv --output-dir evaluation/results/manual-review-20261018",
+  "chapter_4_modified": false,
+  "tests_run": false
+}

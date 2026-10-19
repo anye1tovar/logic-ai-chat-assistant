@@ -26,11 +26,14 @@ async def get_orchestrator() -> AsyncIterator[AssistantOrchestrator]:
         await model.aclose()
 
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse, response_model_exclude_none=True)
 async def chat(
     request: ChatRequest,
     orchestrator: AssistantOrchestrator = Depends(get_orchestrator),
 ) -> ChatResponse:
-    return ChatResponse(
-        answer=await orchestrator.reply(request.message, history=request.history)
-    )
+    if hasattr(orchestrator, "reply_messages"):
+        messages = await orchestrator.reply_messages(request.message, history=request.history)
+    else:
+        messages = [await orchestrator.reply(request.message, history=request.history)]
+    answer = "\n\n".join(messages)
+    return ChatResponse(answer=answer, messages=messages if len(messages) > 1 else None)

@@ -18,7 +18,10 @@ def clarification_answer(fields: list[MissingField]) -> str:
         "date": "¿Para qué fecha lo estás consultando?",
         "attendees": "¿Cuántas personas participarían?",
         "room": "¿Qué sala tienes en mente?",
-        "question": "¿Qué información de Logic quieres consultar?",
+        "question": (
+            "¡Claro! Puedo contarte sobre nuestras salas y temáticas, precios, reservas y horarios, "
+            "eventos, cafetería o ubicación. ¿Cuál de esos temas te interesa más?"
+        ),
     }
     selected = list(dict.fromkeys(fields))
     if not selected:
@@ -31,7 +34,7 @@ def clarification_answer(fields: list[MissingField]) -> str:
 
 def logic_error_answer(error: LogicApiError) -> str:
     if isinstance(error, LogicDayClosed):
-        return "La API de Logic indica que esa fecha está cerrada. Si quieres, dime otra fecha y la consulto."
+        return "Ese día Logic está cerrado. Si quieres, dime otra fecha y la consulto."
     if isinstance(error, LogicOpeningHoursMissing):
         return "No hay un horario configurado para esa fecha; el equipo de Logic debe verificarlo."
     if isinstance(error, LogicConflict):

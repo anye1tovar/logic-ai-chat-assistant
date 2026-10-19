@@ -16,6 +16,9 @@ htmlcov/
 # Frontend
 node_modules/
 dist/
+pfm/
+.agents/
+.archify/
 
 # Local application data
 .data/

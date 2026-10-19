@@ -1,6 +1,7 @@
 """Explicit backend-owned execution for the small, read-only tool set."""
 
 import asyncio
+import re
 import unicodedata
 from dataclasses import dataclass, field
 from datetime import date
@@ -8,6 +9,7 @@ from typing import Any, Callable, Literal
 from zoneinfo import ZoneInfo
 
 from app.core.config import Settings, get_settings
+from app.logic_api.adapter import room_name_matches
 from app.logic_api.client import LogicApiClient, create_logic_api_client
 from app.logic_api.errors import LogicApiError
 from app.logic_api.models import Availability, OpeningHours, Quote, Rate, Room
@@ -81,8 +83,7 @@ def _availability_facts(
 ) -> list[dict[str, Any]]:
     rooms = availability.rooms
     if room_name:
-        normalized = room_name.casefold().strip()
-        rooms = tuple(room for room in rooms if room.name.casefold().strip() == normalized)
+        rooms = tuple(room for room in rooms if room_name_matches(room_name, room.name))
     facts = []
     for room in rooms:
         slots = []
@@ -134,6 +135,91 @@ def _payment_operational_facts(
     ], []
 
 
+def _business_link_operational_facts(message: str, settings: Settings) -> list[dict[str, Any]]:
+    """Expose only configured business links relevant to the customer's request."""
+    normalized = "".join(
+        character
+        for character in unicodedata.normalize("NFD", message.casefold())
+        if unicodedata.category(character) != "Mn"
+    )
+    asks_link = any(term in normalized for term in (
+        "link", "enlace", "url", "pagina", "sitio web", "website", "video",
+        "maps", "mapas", "ubicacion", "direccion", "menu", "donde queda", "donde es",
+        "como llegar", "llegar a logic", "de que se trata la actividad",
+        "en que consiste la actividad", "que tipo de actividad",
+        "como es el juego", "como es la actividad", "como funciona el juego",
+        "como funciona la actividad", "de que se trata el lugar", "que se hace en logic",
+    ))
+    if not asks_link:
+        return []
+
+    requested: list[tuple[str, str | None]] = []
+    if "menu" in normalized or (
+        any(term in normalized for term in ("cafeteria", "comida", "bebida"))
+        and any(term in normalized for term in ("link", "enlace", "url", "pagina"))
+    ):
+        requested.append(("menu_cafeteria_url", settings.logic_cafeteria_menu_url))
+    asks_how_to_arrive = any(term in normalized for term in (
+        "donde queda", "donde es", "como llegar", "como puedo llegar", "llegar a logic",
+    ))
+    if asks_how_to_arrive or any(term in normalized for term in (
+        "maps", "mapas", "ubicacion", "direccion", "google",
+    )):
+        requested.append(("ubicacion_maps_url", settings.logic_map_url))
+    asks_for_escape_room_video = (
+        any(term in normalized for term in ("instagram", "video explicativo", "que es un escape room", "como funciona un escape room"))
+        or (
+            any(term in normalized for term in ("video", "reel"))
+            and any(term in normalized for term in ("escape room", "actividad", "juego", "logic"))
+        )
+        or any(term in normalized for term in (
+            "de que se trata la actividad", "en que consiste la actividad", "que tipo de actividad",
+            "como es el juego", "como es la actividad", "como funciona el juego",
+            "como funciona la actividad", "de que se trata el lugar", "que se hace en logic",
+        ))
+    )
+    if asks_for_escape_room_video:
+        requested.append(("video_explicativo_escape_room_url", settings.logic_escape_room_explainer_url))
+    if any(term in normalized for term in ("pagina", "sitio web", "website", "web oficial")):
+        requested.append(("sitio_web_oficial_url", settings.logic_official_website_url))
+
+    return [
+        {"name": name, "url": value, "source": "configuracion de entorno de Logic"}
+        for name, value in requested
+        if value
+    ]
+
+
+def _activity_explanation_facts(message: str) -> list[dict[str, Any]]:
+    """Provide the basic activity description requested by Logic's owner."""
+    normalized = "".join(
+        character
+        for character in unicodedata.normalize("NFD", message.casefold())
+        if unicodedata.category(character) != "Mn"
+    )
+    asks_activity = any(phrase in normalized for phrase in (
+        "de que se trata la actividad", "en que consiste la actividad",
+        "que es un escape room", "que es escape room", "que es la actividad", "que tipo de actividad",
+        "que actividad es", "que es logic", "como es el juego", "como es la actividad",
+        "como funciona el juego", "como funciona la actividad", "como se juega",
+        "de que se trata el lugar", "de que trata el lugar", "como es el lugar",
+        "como funciona logic", "que se hace en logic", "que se hace en este lugar",
+    )) or bool(re.search(
+        r"\b(?:de\s+que\s+(?:se\s+)?trata|en\s+que\s+consiste|que\s+es|como\s+(?:es|funciona|se\s+juega))\b.{0,55}\b(?:actividad|logic|escape\s*room|juego|experiencia|lugar)\b",
+        normalized,
+    )) or (
+        bool(re.search(r"\b(?:explicame|cuentame|nunca\s+he\s+ido|primera\s+vez|que\s+toca\s+hacer|que\s+hay\s+que\s+hacer)\b", normalized))
+        and bool(re.search(r"\b(?:actividad|logic|escape\s*room|juego|experiencia|lugar|uno\s+llega)\b", normalized))
+    )
+    if not asks_activity:
+        return []
+    return [{
+        "name": "descripcion_general_actividad",
+        "text": "Explicación general del concepto: un escape room es un juego presencial de aventura y lógica que se disfruta en equipo. Los participantes entran a una sala con una temática, buscan pistas y resuelven acertijos para avanzar y cumplir una misión antes de que termine el tiempo. Logic Escape Room ofrece esta clase de experiencia. Esta descripción explica el concepto general y no afirma que todas las salas de Logic tengan las mismas reglas, historia o retos.",
+        "source": "descripción general solicitada por Logic",
+    }]
+
+
 def _asks_for_exception_or_payment_review(message: str) -> bool:
     normalized = "".join(
         character
@@ -156,6 +242,70 @@ def _asks_for_exception_or_payment_review(message: str) -> bool:
         "adjunto",
     )
     return any(phrase in normalized for phrase in review_phrases)
+
+
+def _expand_experience_query(query: str, user_message: str) -> str:
+    """Add corpus vocabulary for common paraphrases without adding business claims."""
+    normalized = "".join(
+        char for char in unicodedata.normalize("NFD", user_message.casefold())
+        if unicodedata.category(char) != "Mn"
+    )
+    has_game_context = any(term in normalized for term in (
+        "juego", "sesion", "experiencia", "sala de escape",
+    ))
+    asks_duration_or_arrival = bool(any(
+        term in normalized
+        for term in (
+            "dura", "duracion", "anticipacion", "llegamos", "llegar temprano",
+            "retraso", "a que hora llegar", "cuando llegar",
+        )
+    ) or ("cuanto tiempo" in normalized and has_game_context))
+    asks_about_outside_food_or_drink = bool(any(
+        term in normalized
+        for term in (
+            "bebida", "tomar", "comida", "alimento", "compre afuera",
+            "comprado afuera", "llevar afuera", "ingresar a la cafeteria",
+            "entrar a la cafeteria",
+        )
+    ))
+    expansions = []
+    if asks_duration_or_arrival:
+        expansions.append(
+            "duracion de la sesion de escape tiempo de juego minutos llegada llegar antes retrasos"
+        )
+    if asks_about_outside_food_or_drink:
+        expansions.append(
+            "politica alimentos y bebidas propias bebidas compradas afuera ingreso a salas cafeteria"
+        )
+    return " ".join([query, *expansions]) if expansions else query
+
+
+def _knowledge_categories_for_message(
+    categories: list[str],
+    user_message: str,
+) -> list[str] | None:
+    """Prefer corpus categories implied by clear experience questions over model guesses."""
+    normalized = "".join(
+        character
+        for character in unicodedata.normalize("NFD", user_message.casefold())
+        if unicodedata.category(character) != "Mn"
+    )
+    has_game_context = any(term in normalized for term in (
+        "juego", "sesion", "experiencia", "sala de escape",
+    ))
+    food_or_drink_question = any(term in normalized for term in (
+        "bebida", "tomar", "comida", "alimento", "compre afuera",
+        "comprado afuera",
+    ))
+    if "cafeteria" in normalized and not food_or_drink_question:
+        return ["faq"]
+    experience_question = any(term in normalized for term in (
+        "dura", "duracion", "anticipacion", "llegamos", "llegar temprano",
+        "retraso",
+    )) or food_or_drink_question or ("cuanto tiempo" in normalized and has_game_context)
+    if experience_question:
+        return ["operational_rule"]
+    return categories or None
 
 
 class AssistantTools:
@@ -184,20 +334,122 @@ class AssistantTools:
         if not self.settings.logic_api_base_url:
             return ToolOutcome(
                 AssistantEvidence("api_only"),
-                fallback_answer="No puedo verificar esa información porque la conexión con la API de Logic no está configurada.",
+                fallback_answer="No puedo verificar esa información en este momento. El equipo de Logic debe revisarla.",
                 needs_human=True,
             )
 
         async with self.logic_client_factory(self.settings) as client:
             if route == "get_rooms":
                 rooms = await client.get_rooms()
-                return ToolOutcome(
-                    AssistantEvidence("api_only", api_facts=[_room_fact(room) for room in rooms])
-                )
+                if selection.room:
+                    rooms = [room for room in rooms if room_name_matches(selection.room, room.name)]
+                    if not rooms:
+                        return ToolOutcome(
+                            AssistantEvidence("api_only"),
+                            fallback_answer="No pude encontrar esa sala en el catálogo vigente. ¿Me confirmas su nombre?",
+                        )
+                api_facts = [_room_fact(room) for room in rooms]
+                if selection.query == "__room_catalog_and_reference_prices__":
+                    rates = await client.get_rates()
+                    api_facts.extend(_rate_fact(rate) for rate in rates)
+                    return ToolOutcome(AssistantEvidence("api_only", api_facts=api_facts))
+                if selection.query == "__child_admission_policy__":
+                    try:
+                        results = await asyncio.to_thread(
+                            self.knowledge_search,
+                            "regla general ingreso niños desde nueve años con adulto responsable " + user_message,
+                            room=None,
+                            categories=selection.categories,
+                            top_k=4,
+                            settings=self.settings,
+                        )
+                    except Exception:
+                        results = []
+                    if not results:
+                        return ToolOutcome(
+                            AssistantEvidence("api_and_rag", api_facts=api_facts),
+                            fallback_answer="No pude verificar la política de ingreso para menores. El equipo de Logic debe confirmarla.",
+                            needs_human=True,
+                        )
+                    return ToolOutcome(AssistantEvidence(
+                        "api_and_rag",
+                        api_facts=api_facts,
+                        rag_facts=[_rag_fact(item) for item in results],
+                    ))
+                if selection.categories and selection.query:
+                    if selection.query.startswith("theme:"):
+                        theme = selection.query.partition(":")[2].strip()
+                        # Keep the embedding query focused on the exact thematic term.
+                        # Appending the booking date and phrasing can rank unrelated FAQ chunks higher.
+                        query = theme
+                        top_k = 20
+                    else:
+                        query = " ".join(
+                            part.strip() for part in (selection.query, user_message) if part and part.strip()
+                        )
+                        top_k = 4
+                    try:
+                        results = await asyncio.to_thread(
+                            self.knowledge_search,
+                            query,
+                            room=selection.room,
+                            categories=selection.categories,
+                            top_k=top_k,
+                            settings=self.settings,
+                        )
+                    except Exception:
+                        results = []
+                    if not results and selection.query.startswith("theme:"):
+                        theme = selection.query.partition(":")[2].strip()
+                        try:
+                            results = await asyncio.to_thread(
+                                self.knowledge_search,
+                                f"recomendacion tematica sala {theme}",
+                                room=None,
+                                categories=selection.categories,
+                                top_k=20,
+                                settings=self.settings,
+                            )
+                        except Exception:
+                            results = []
+                    if not results:
+                        return ToolOutcome(AssistantEvidence(
+                            "api_and_rag",
+                            api_facts=api_facts,
+                            warnings=["No se pudo verificar la correspondencia entre la temática solicitada y las salas; no recomendar una sala por tema ni inferir condiciones para menores."],
+                        ), needs_human=True)
+                    return ToolOutcome(AssistantEvidence(
+                        "api_and_rag",
+                        api_facts=api_facts,
+                        rag_facts=[_rag_fact(item) for item in results],
+                        warnings=["Usa las temáticas solo como recomendación; confirma edades y límites con los datos actuales de cada sala."],
+                    ))
+                return ToolOutcome(AssistantEvidence("api_only", api_facts=api_facts))
             if route == "get_rates":
                 rates = await client.get_rates(selection.day_type)
+                api_facts = [_rate_fact(rate) for rate in rates]
+                if selection.query == "__location_and_prices__":
+                    try:
+                        location_results = await asyncio.to_thread(
+                            self.knowledge_search,
+                            "dirección física ubicación de Logic Escape Room Tunja",
+                            room=None,
+                            categories=["faq"],
+                            top_k=2,
+                            settings=self.settings,
+                        )
+                    except Exception:
+                        location_results = []
+                    return ToolOutcome(AssistantEvidence(
+                        "api_and_rag",
+                        api_facts=api_facts,
+                        rag_facts=[_rag_fact(item) for item in location_results],
+                        operational_facts=_business_link_operational_facts(
+                            user_message, self.settings
+                        ),
+                    ))
                 return ToolOutcome(
-                    AssistantEvidence("api_only", api_facts=[_rate_fact(rate) for rate in rates])
+                    AssistantEvidence("api_only", api_facts=api_facts)
                 )
             if route == "get_opening_hours":
                 hours = await client.get_opening_hours()
@@ -244,16 +496,33 @@ class AssistantTools:
         selection: RouteSelection,
         user_message: str,
     ) -> ToolOutcome:
-        query = (selection.query or user_message).strip()
+        query = _expand_experience_query(
+            " ".join(
+                part.strip()
+                for part in (selection.query, user_message)
+                if part and part.strip()
+            ),
+            user_message,
+        )
         operational_facts, operational_warnings = _payment_operational_facts(
             selection, self.settings
         )
+        link_facts = _business_link_operational_facts(
+            " ".join(part for part in (selection.query, user_message) if part),
+            self.settings,
+        )
+        activity_facts = _activity_explanation_facts(
+            " ".join(part for part in (selection.query, user_message) if part)
+        )
+        operational_facts.extend([*link_facts, *activity_facts])
         try:
             results = await asyncio.to_thread(
                 self.knowledge_search,
                 query,
                 room=selection.room,
-                categories=selection.categories or None,
+                categories=_knowledge_categories_for_message(
+                    selection.categories, user_message
+                ),
                 top_k=4,
                 settings=self.settings,
             )
@@ -313,13 +582,12 @@ class AssistantTools:
         if not self.settings.logic_api_base_url:
             return ToolOutcome(
                 AssistantEvidence("api_and_rag"),
-                fallback_answer="No puedo verificar la sala en la API de Logic en este momento; el equipo debe revisar el caso.",
+                fallback_answer="No puedo verificar la sala en este momento; el equipo de Logic debe revisar el caso.",
                 needs_human=True,
             )
         async with self.logic_client_factory(self.settings) as client:
             rooms = await client.get_rooms()
-        normalized = selection.room.casefold().strip()
-        matching_rooms = [room for room in rooms if room.name.casefold().strip() == normalized]
+        matching_rooms = [room for room in rooms if room_name_matches(selection.room, room.name)]
         if not matching_rooms:
             return ToolOutcome(
                 AssistantEvidence("api_and_rag"),
@@ -358,7 +626,7 @@ class AssistantTools:
         ]
         if attendee_count and room.max_players and attendee_count > room.max_players:
             warnings.append(
-                "El grupo supera el máximo ordinario de la API; no confirmar el cupo y solicitar revisión humana."
+                "El grupo supera el máximo ordinario de la sala; no confirmar el cupo y solicitar revisión humana."
             )
         evidence = AssistantEvidence(
             "api_and_rag",

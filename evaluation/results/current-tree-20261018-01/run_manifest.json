@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1.0",
+  "run_id": "a9c222c3ee31470590ce25a0904a907c",
+  "captured_at_utc": "2026-10-19T01:38:43.185884+00:00",
+  "run_status": "completed_with_case_errors",
+  "evaluation_claim": "No human quality scores are present; route/source labels are not answer-quality evidence.",
+  "execution_mode": {
+    "runner_uses_mocks": false,
+    "llm_and_embeddings": "configured external provider; network calls failed before tool execution in this run",
+    "logic_api": "configured external endpoint; no Logic API request occurred because route selection failed",
+    "rag": "persistent local Chroma collection; no retrieval occurred because route selection failed",
+    "availability_freshness": "not applicable; no availability request occurred"
+  },
+  "configuration_non_secret": {
+    "app_env": "local",
+    "model": "gpt-6-luna",
+    "llm_provider_endpoint": "https://api.openai.com/v1 (OpenAI SDK default)",
+    "embedding_model": "text-embedding-3-small",
+    "reasoning_effort": "none",
+    "chat_max_output_tokens": 400,
+    "openai_timeout_seconds": 30.0,
+    "logic_api_endpoint": {
+      "configured": true,
+      "origin": "https://resulting-tory-logic-escape-room-96e3bc19.koyeb.app",
+      "base_path": "/"
+    },
+    "logic_api_timeout_seconds": 10.0,
+    "reference_cache_ttl_seconds": 43200,
+    "rag_collection": "logic_knowledge_v1",
+    "rag_max_distance": 0.55,
+    "rag_index_path": "backend\\.data\\chroma",
+    "rag_index_exists": true,
+    "credentials_included": false
+  },
+  "environment": {
+    "python": "3.14.0",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "source_state": {
+    "git_head": "32832660c8ab415d0c62f2e9210d772ae2ebb732",
+    "working_tree_clean": false,
+    "working_tree_status_sha256": "c6bbaa34fc80bdb5c982d63b496a283473a5ed03861f601ee611dbd1a92d7482",
+    "prompt_sha256": "dfb60c8ffa73748faf92934b5a61519d8479ee04e00ab463746d21552cda9de0",
+    "dataset_sha256": "c87f9835ec3d3812be02935425cd29980fec0a0a98de8446b73480c428df4885",
+    "knowledge_markdown_sha256": "f77facc1a30d8f386d9f17a56e1fbbdad29d116b6d713bc720dcafb6919a33b0",
+    "rag_index_sha256": "50bed335c6395a47a048693cc6d62b74754d170dbc1e08e2e1cbc902acc006ad",
+    "runner_code_revision_reported": "32832660c8ab415d0c62f2e9210d772ae2ebb732",
+    "source_snapshot": "reproduction_source_snapshot.zip",
+    "source_snapshot_sha256": "f256b5b0099155df21eca303e17e9a4afe5539ed01068ec7f4733f6246788f1b"
+  },
+  "result_artifacts": {
+    "summary_sha256": "a7545fe0070f4cde1b9db895536874a8ab1537b7035db5943d34180533c0f333",
+    "raw_runs_sha256": "c8122d19be26d9ad8759219866c7dec87f8048006924f025c829af7b86e8c90e",
+    "review_matrix": "evaluation\\results\\current-tree-20261018-01\\review\\matriz_evaluacion.csv",
+    "review_matrix_sha256": "c1c30ae563e065c2544c4a282d5038b42037b3abed6d60848d64db6a0f021520"
+  },
+  "case_errors": {
+    "route_selection:APIConnectionError": 40
+  },
+  "cases": 40,
+  "human_scored_cases": 0,
+  "note": "This is a preserved failed live-service attempt, not a valid conversational quality run. A subsequent approved run must use a new output directory."
+}

@@ -3,7 +3,7 @@ import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 type Role = 'user' | 'assistant';
 type Message = { id: string; role: Role; content: string; createdAt: number };
 type ChatTurn = Pick<Message, 'role' | 'content'>;
-type ChatResponse = { answer?: unknown };
+type ChatResponse = { answer?: unknown; messages?: unknown };
 
 const MAX_CONTEXT_TURNS = 8;
 const SUGGESTIONS = [
@@ -49,14 +49,18 @@ export default function App() {
       }
 
       const payload = (await response.json()) as ChatResponse;
-      const answer = payload.answer;
-      if (typeof answer !== 'string' || !answer.trim()) {
+      const responseMessages = Array.isArray(payload.messages)
+        ? payload.messages.filter((item): item is string => typeof item === 'string' && !!item.trim())
+        : typeof payload.answer === 'string' && payload.answer.trim()
+          ? [payload.answer.trim()]
+          : [];
+      if (responseMessages.length === 0) {
         throw new Error('Recibimos una respuesta inesperada. Inténtalo de nuevo.');
       }
 
-      setMessages((current) => [...current, {
-        id: makeId(), role: 'assistant', content: answer.trim(), createdAt: Date.now(),
-      }]);
+      setMessages((current) => [...current, ...responseMessages.map((content) => ({
+        id: makeId(), role: 'assistant' as const, content: content.trim(), createdAt: Date.now(),
+      }))]);
       setRetryRequest(null);
     } catch (requestError) {
       setError(requestError instanceof Error

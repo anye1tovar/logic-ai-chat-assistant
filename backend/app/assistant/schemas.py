@@ -86,3 +86,4 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    messages: list[str] | None = None

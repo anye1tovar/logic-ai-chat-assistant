@@ -126,16 +126,19 @@ class OpenAIChatModel:
         evidence: dict,
         history: list[ChatTurn] | None = None,
     ) -> str:
-        response = await self.client.chat.completions.create(
-            model=self.settings.openai_model,
-            messages=evidence_messages(user_message, evidence, history),
-            max_completion_tokens=self.settings.openai_chat_max_output_tokens,
-        )
-        choices = response.choices
-        content = choices[0].message.content if choices else None
-        if not content or not content.strip():
-            raise ModelProtocolError("The model returned an empty answer.")
-        return content.strip()
+        for attempt in range(2):
+            response = await self.client.chat.completions.create(
+                model=self.settings.openai_model,
+                messages=evidence_messages(user_message, evidence, history),
+                max_completion_tokens=self.settings.openai_chat_max_output_tokens,
+            )
+            choices = response.choices
+            content = choices[0].message.content if choices else None
+            if content and content.strip():
+                return content.strip()
+            if attempt == 1:
+                raise ModelProtocolError("The model returned an empty answer twice.")
+        raise ModelProtocolError("The model returned an empty answer.")
 
     async def aclose(self) -> None:
         await self.client.close()

@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     openai_chat_max_output_tokens: int = Field(default=400, ge=64, le=2000)
 
     logic_api_base_url: str | None = None
+    logic_map_url: str | None = None
+    logic_official_website_url: str | None = None
+    logic_escape_room_explainer_url: str | None = None
+    logic_cafeteria_menu_url: str | None = None
     logic_typical_deposit_per_room_cop: int | None = Field(default=None, ge=0)
     logic_payment_method_for_deposits: str | None = Field(default=None, repr=False)
     logic_bre_b_key: str | None = Field(default=None, repr=False)

@@ -1,0 +1,47 @@
+{
+  "manifest_version": "1.0",
+  "reviewed_at": "2026-10-18",
+  "status": "historical_evaluation_evidence",
+  "evaluated_run": {
+    "run_id": "dd5fca9e91f24ae68ff23de426eb2caf",
+    "created_at": "2026-10-18T18:10:20.344457+00:00",
+    "code_revision_reported_by_runner": "32832660c8ab415d0c62f2e9210d772ae2ebb732",
+    "model": "gpt-6-luna",
+    "dataset_version": "1.0.0",
+    "cases": 40,
+    "route_accuracy": 1.0,
+    "source_accuracy": 1.0,
+    "cases_with_errors": 0,
+    "latency_seconds": {
+      "mean": 5.332002,
+      "median": 5.224245,
+      "p95": 7.679406
+    },
+    "manual_reviewed_cases": 0,
+    "manual_quality_metrics": "not measured"
+  },
+  "artifacts": {
+    "summary_file": "summary.json",
+    "summary_sha256": "47273abdf5c3b93a57a44b2a3e8041fb4148002671087235a285f9cbb2f70e29",
+    "raw_runs_file": "raw_runs.jsonl",
+    "raw_runs_sha256": "f22bf823c47002fe4f34dbcea3087d333e3a048a9afe80032a00f29d4fd438db",
+    "records_in_raw_runs": 440,
+    "distinct_run_ids": 11,
+    "records_for_evaluated_run": 40
+  },
+  "reproducibility": {
+    "dataset_sha256_matches_current": true,
+    "knowledge_sha256_matches_current": true,
+    "prompt_sha256_reported_by_run": "4ff142c94fbbc23f1fc56230c6fe637a88e8de8c9b52ecd2fa5dc2adc51281a8",
+    "prompt_sha256_current": "dfb60c8ffa73748faf92934b5a61519d8479ee04e00ab463746d21552cda9de0",
+    "runner_recorded_working_tree_state": false,
+    "current_working_tree_clean_at_review": false,
+    "current_working_tree_is_proven_evaluated_version": false,
+    "notes": [
+      "The runner recorded the commit hash but did not capture the code diff or untracked files at evaluation time.",
+      "The evaluated prompt hash differs from the prompt file currently in the repository.",
+      "Preserve this run as historical evidence; do not report it as evaluation of the current working tree.",
+      "A new official run should use a clean frozen revision and include manual review before reporting answer-quality metrics."
+    ]
+  }
+}
